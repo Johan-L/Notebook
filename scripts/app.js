@@ -19,12 +19,11 @@
   var app = {
     isLoading: true,
     visibleCards: {},
-    selectedCities: [],
+    noteEntries: [],
     spinner: document.querySelector('.loader'),
     cardTemplate: document.querySelector('.cardTemplate'),
     container: document.querySelector('.main'),
-    addDialog: document.querySelector('.dialog-container'),
-    daysOfWeek: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    addDialog: document.querySelector('.dialog-container')
   };
 
 
@@ -35,12 +34,12 @@
    ****************************************************************************/
 
   document.getElementById('butRefresh').addEventListener('click', function() {
-    // Refresh all of the forecasts
-    app.updateForecasts();
+    // Refresh all of the notes
+    app.updateNotes();
   });
 
   document.getElementById('butAdd').addEventListener('click', function() {
-    // Open/show the add new city dialog
+    // Open/show the add new note dialog
     app.toggleAddDialog(true);
   });
 
@@ -49,24 +48,24 @@
     console.log("add text: " + inputText);
     
     var index = 0;
-    if(app.selectedCities) {
-      console.log("i ", index, app.selectedCities);
-      index = app.selectedCities.length;
+    if(app.noteEntries) {
+      console.log("i ", index);
+      index = app.noteEntries.length;
 
-      app.selectedCities.push({key: "text-" + index, label: inputText});
+      app.noteEntries.push({key: "text-" + index, label: inputText});
     } else {
-      app.selectedCities = [
+      app.noteEntries = [
         {key: "text-0", label: inputText}
       ];
     }
 
-    app.saveSelectedCities();
+    app.savenoteEntries();
     app.toggleAddDialog(false);
-    app.updateForecasts();
+    app.updateNotes();
   });
 
   document.getElementById('butAddCancel').addEventListener('click', function() {
-    // Close the add new city dialog
+    // Close the add new note dialog
     app.toggleAddDialog(false);
   });
 
@@ -77,7 +76,7 @@
    *
    ****************************************************************************/
 
-  // Toggles the visibility of the add new city dialog.
+  // Toggles the visibility of the add new note dialog.
   app.toggleAddDialog = function(visible) {
     if (visible) {
       app.addDialog.classList.add('dialog-container--visible');
@@ -86,17 +85,10 @@
     }
   };
 
-  // Updates a weather card with the latest weather forecast. If the card
+  // Updates a note card with the latest notes. If the card
   // doesn't already exist, it's cloned from the template.
-  app.updateForecastCard = function(data) {
-    /*var dataLastUpdated = new Date(data.created);
-    var sunrise = data.channel.astronomy.sunrise;
-    var sunset = data.channel.astronomy.sunset;
-    var current = data.channel.item.condition;
-    var humidity = data.channel.atmosphere.humidity;
-    var wind = data.channel.wind;
-*/
-    console.log("updateForecastCard ", data);
+  app.updateNoteCard = function(data) {
+    console.log("updateNoteCard ", data);
     var card = app.visibleCards[data.key];
     if (!card) {
       console.log("card", card);
@@ -122,59 +114,35 @@
    *
    ****************************************************************************/
 
-  /*
-   * Gets a forecast for a specific city and updates the card with the data.
-   * getForecast() first checks if the weather data is in the cache. If so,
-   * then it gets that data and populates the card with the cached data.
-   * Then, getForecast() goes to the network for fresh data. If the network
-   * request goes through, then the card gets updated a second time with the
-   * freshest data.
-   */
-  app.getForecast = function(key, label) {
-    console.log("getForecast ", key,label);
-    var results = {};
-    results.key = key;
-    results.label = label;
-    console.log("before update");
-    app.updateForecastCard(results);
-    console.log("after update");
-
-  };
-
   // Iterate all of the cards and attempt to get the latest forecast data
-  app.updateForecasts = function() {
+  app.updateNotes = function() {
 
-    app.selectedCities = localStorage.selectedCities;
-    if (app.selectedCities) {
-      app.selectedCities = JSON.parse(app.selectedCities);
-      app.selectedCities.forEach(function(city) {
+    app.noteEntries = localStorage.noteEntries;
+    if (app.noteEntries) {
+      app.noteEntries = JSON.parse(app.noteEntries);
+      app.noteEntries.forEach(function(city) {
         console.log("start ", city.key, city.label);
-        app.getForecast(city.key, city.label);
+        //app.getForecast(city.key, city.label);
+        var results = {};
+        results.key = city.key;
+        results.label = city.label;
+        console.log("before update");
+        app.updateNoteCard(results);
       });
     } 
 
-    //var keys = Object.keys(app.visibleCards);
-    //keys.forEach(function(key) {
-    //  app.getForecast(key);
-    //});
     console.log("update");
-    //app.getForecast("text");
   };
 
-  // Save list of cities to localStorage, see note below about localStorage.
-  app.saveSelectedCities = function() {
-    var selectedCities = JSON.stringify(app.selectedCities);
+  // Save list of notes to localStorage, see note below about localStorage.
+  app.savenoteEntries = function() {
+    var noteEntries = JSON.stringify(app.noteEntries);
     // IMPORTANT: See notes about use of localStorage.
-    localStorage.selectedCities = selectedCities;
+    localStorage.noteEntries = noteEntries;
   };
 
 
-  /*
-   * Fake weather data that is presented when the user first uses the app,
-   * or when the user has not saved any cities. See startup code for more
-   * discussion.
-   */
-  var initialWeatherForecast = {
+  var initialData = {
     key: 'text',
     label: 'initial text',
   };
@@ -190,26 +158,22 @@
    *   SimpleDB (https://gist.github.com/inexorabletash/c8069c042b734519680c)
    ************************************************************************/
 
-  app.selectedCities = localStorage.selectedCities;
-  if (app.selectedCities) {
-    app.selectedCities = JSON.parse(app.selectedCities);
-    app.selectedCities.forEach(function(city) {
-      console.log("start ", city.key, city.label);
-      app.getForecast(city.key, city.label);
+  app.noteEntries = localStorage.noteEntries;
+  if (app.noteEntries) {
+    app.noteEntries = JSON.parse(app.noteEntries);
+    app.noteEntries.forEach(function(note) {
+      console.log("start ", note.key, note.label);
+      var results = {};
+      results.key = note.key;
+      results.label = note.label;
+      console.log("before update");
+      app.updateNoteCard(results);
     });
-  } /*else {*/
-    /* The user is using the app for the first time, or the user has not
-     * saved any cities, so show the user some fake data. A real app in this
-     * scenario could guess the user's location via IP lookup and then inject
-     * that data into the page.
-     */
-    /*console.log("initial");
-    app.updateForecastCard(initialWeatherForecast);
-    app.selectedCities = [
-      {key: initialWeatherForecast.key, label: initialWeatherForecast.label}
-    ];
-    app.saveSelectedCities();
-  }*/
+  } else {
+    app.spinner.setAttribute('hidden', true);
+    app.container.removeAttribute('hidden');
+    app.isLoading = false;
+  }
 
   if('serviceWorker' in navigator) {
     navigator.serviceWorker
