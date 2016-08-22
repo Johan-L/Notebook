@@ -1,4 +1,4 @@
-  // Copyright 2016 Google Inc.
+    // Copyright 2016 Google Inc.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ self.addEventListener('fetch', function(e) {
      * "Cache, falling back to the network" offline strategy:
      * https://jakearchibald.com/2014/offline-cookbook/#cache-falling-back-to-network
      */
-    console.log("fetch shell");
+    console.log("fetch shell ", e);
     e.respondWith(
       caches.match(e.request).then(function(response) {
         return response || fetch(e.request);
