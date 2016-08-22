@@ -82,6 +82,7 @@
       app.addDialog.classList.add('dialog-container--visible');
     } else {
       app.addDialog.classList.remove('dialog-container--visible');
+      document.getElementById('text').value = "";
     }
   };
 
