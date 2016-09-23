@@ -1,0 +1,8 @@
+{
+  "staticFileGlobs": [
+    "styles/**.css",
+    "index.html",
+    "images/**.*",
+    "scripts/**.js"
+  ]
+}
